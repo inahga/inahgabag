@@ -1,0 +1,22 @@
+diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
+index 2365152c7..32edb75cf 100644
+--- a/src/backends/native/meta-renderer-native.c
++++ b/src/backends/native/meta-renderer-native.c
+@@ -3768,6 +3768,17 @@ choose_primary_gpu_unchecked (MetaBackend        *backend,
+           }
+       }
+ 
++    /* Consider hardware-accelerated secondary GPUs with outputs (like eGPUs) first */
++    for (l = gpus; l; l = l->next)
++      {
++        MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
++
++        if (!meta_gpu_kms_is_boot_vga (gpu_kms) &&
++            meta_gpu_kms_can_have_outputs (gpu_kms) &&
++            gpu_kms_is_hardware_rendering (renderer_native, gpu_kms))
++          return gpu_kms;
++      }
++
+     /* Prefer a platform device */
+     for (l = gpus; l; l = l->next)
+       {
