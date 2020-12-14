@@ -2,15 +2,16 @@
 set -euo pipefail
 
 if [ -z "${1+x}" ] || [ -z "${2+x}" ]; then
-	echo "usage: $0 [TARGET PACKAGE] [PATCH FILES]..."
+	echo "usage: $0 [TARGET PACKAGE] [APPEND TO SUMMARY] [PATCH FILES]..."
 	exit 1
 fi
 
 TARGET=$1
-shift 1
+APPEND=$2
+shift 2
 
 install_deps() {
-	dnf install -y make rpm-build dnf-plugins-core
+	sudo dnf install -y make rpm-build dnf-plugins-core
 }
 
 install_srpm() {
@@ -44,10 +45,12 @@ fix_spec() {
 		PATCHNUMBER=$((PATCHNUMBER + 1))
 		LATEST_PATCH=$FULLPATCH
 	done
+
+	sed -i "/Summary:/ s/$/ $APPEND/" "$SPECFILE"
 }
 
 build() {
-	dnf builddep "$TARGET" -y
+	sudo dnf builddep "$TARGET" -y
 	rpmbuild -ba "$HOME/rpmbuild/SPECS/$TARGET.spec"
 }
 
