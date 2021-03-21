@@ -1,0 +1,30 @@
+name: backup
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1'
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: backup
+        run: |
+          echo "$GPG_PUBLIC_KEY" | gpg --import
+
+          for r in $(gh repo list --source -L1000 | awk '{print $1}'); do
+            git clone "https://user:$GITHUB_TOKEN@github.com/$r" &
+          done
+          wait
+
+          export AWS_DEFAULT_REGION=us-west-2
+          tar cvzf - ./ |
+            gpg --encrypt --trust-model always -r "$EMAIL" |
+            aws s3 cp - "s3://$AWS_S3_BUCKET/github-$(date +"%Y-%m-%d-%k%M").tar.gz.gpg"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          EMAIL: ${{ secrets.EMAIL }}
+          GPG_PUBLIC_KEY: ${{ secrets.GPG_PUBLIC_KEY }}
+
