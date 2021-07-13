@@ -1,0 +1,22 @@
+[Unit]
+Description=FTB Endeavour Server
+Wants=network.target
+After=network.target
+
+[Service]
+User=endeavour
+Group=endeavour
+Restart=on-failure
+ProtectHome=true
+ProtectSystem=full
+PrivateDevices=true
+NoNewPrivileges=true
+PrivateTmp=true
+ReadWriteDirectories=/opt/endeavour/server
+WorkingDirectory=/opt/endeavour/server
+ExecStart=/opt/endeavour/server/start.sh
+ExecStop=/usr/local/bin/mcrcon -p password stop
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target
