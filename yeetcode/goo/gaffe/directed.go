@@ -21,7 +21,7 @@ func (d *DirectedGraph[T]) DFS(fn func(*T) bool) {
 						stack = append(stack, edge)
 					}
 				}
-				if ret := fn(n); !ret {
+				if !fn(n) {
 					return
 				}
 			}
@@ -44,7 +44,7 @@ func (d *DirectedGraph[T]) DFSFrom(from T, fn func(*T) bool) {
 				stack = append(stack, edge)
 			}
 		}
-		if ret := fn(n); !ret {
+		if !fn(n) {
 			return
 		}
 	}
