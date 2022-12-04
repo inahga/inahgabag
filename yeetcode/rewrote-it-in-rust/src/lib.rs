@@ -11,6 +11,9 @@ where
     let mut ret = iter.next()?.into_iter().collect::<HashSet<_>>();
     for next in iter {
         ret = next.into_iter().filter(|e| ret.contains(e)).collect();
+        if ret.is_empty() {
+            return None;
+        }
     }
     Some(ret)
 }
@@ -25,6 +28,7 @@ mod tests {
             intersection(vec![vec![1, 2, 3], vec![3, 4, 5], vec![3, 6, 7]]).unwrap()
                 == HashSet::from([3])
         );
+        assert!(intersection(vec![vec![1, 2, 3], vec![4, 5, 6]]) == None);
         assert!(intersection(vec![vec![1, 2, 3]]).unwrap() == HashSet::from([1, 2, 3]));
         assert!(intersection::<Vec<i32>, _, _>(vec![]) == None);
         assert!(
