@@ -3,6 +3,8 @@ use std::error::Error;
 use std::io::stdin;
 
 fn parse_stacks() -> Result<Vec<VecDeque<char>>, Box<dyn Error>> {
+    // Stack is populated from the end to the beginning, so using VecDeque prevents
+    // having to reorder the Vec to have it behave as a proper stack.
     let mut stacks: Vec<VecDeque<char>> = vec![];
     let mut line = String::new();
 
@@ -37,8 +39,6 @@ fn print_stack(prefix: &str, stacks: Vec<VecDeque<char>>) {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    // Stack is populated from the end to the beginning, so using VecDeque prevents
-    // having to reorder the Vec to have it behave as a proper stack.
     let mut stacks = parse_stacks()?;
     let mut fancy_stacks = stacks.clone();
 
@@ -62,15 +62,22 @@ fn main() -> Result<(), Box<dyn Error>> {
             instruction.next().unwrap(),
         );
 
-        (0..num).for_each(|_| {
+        for _ in 0..num {
             let insert = stacks[from - 1].pop_back().expect("stack underflow");
             stacks[to - 1].push_back(insert);
-        });
+        }
+
+        let drain_range = fancy_stacks[from - 1].len() - num..;
+        fancy_stacks[from - 1]
+            .drain(drain_range)
+            .collect::<Vec<_>>()
+            .iter()
+            .for_each(|e| fancy_stacks[to - 1].push_back(*e));
 
         line.clear();
     }
 
-    print_stack("part 1:", stacks);
-    print_stack("part 2:", fancy_stacks);
+    print_stack("part 1: ", stacks);
+    print_stack("part 2: ", fancy_stacks);
     Ok(())
 }
