@@ -1,5 +1,6 @@
 use std::error::Error;
 use std::io::stdin;
+use std::ops::ControlFlow;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let input = stdin()
@@ -13,6 +14,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .collect::<Vec<_>>();
 
     let mut part1 = 0;
+    let mut max = 0;
     for row in 0..input.len() {
         for col in 0..input[0].len() {
             let h = input[row][col];
@@ -23,9 +25,31 @@ fn main() -> Result<(), Box<dyn Error>> {
             {
                 part1 += 1;
             }
+
+            let f = |s: i32, e: u32| {
+                if e >= h {
+                    ControlFlow::Break(s + 1)
+                } else {
+                    ControlFlow::Continue(s + 1)
+                }
+            };
+            let u = |c: ControlFlow<_, _>| match c {
+                ControlFlow::Break(v) => v,
+                ControlFlow::Continue(v) => v,
+            };
+            let up = u(input[..row].iter().rev().try_fold(0, |s, e| f(s, e[col])));
+            let down = u(input[row + 1..].iter().try_fold(0, |s, e| f(s, e[col])));
+            let right = u(input[row][col + 1..].iter().try_fold(0, |s, e| f(s, *e)));
+            let left = u(input[row][..col].iter().rev().try_fold(0, |s, e| f(s, *e)));
+
+            let v = up * down * left * right;
+            if v > max {
+                max = v;
+            }
         }
     }
 
     println!("part 1: {}", part1);
+    println!("part 2: {}", max);
     Ok(())
 }
