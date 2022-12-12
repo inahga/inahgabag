@@ -37,42 +37,62 @@ fn mv(a: Pair, d: Direction) -> Pair {
     }
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let mut head: Pair = (0, 0);
-    let mut tail: Pair = (0, 0);
+fn mv_towards(head: &Pair, tail: &Pair) -> Pair {
+    (
+        if (head.0 - tail.0) == 0 {
+            tail.0
+        } else {
+            tail.0 + (head.0 - tail.0) / (head.0 - tail.0).abs()
+        },
+        if (head.1 - tail.1) == 0 {
+            tail.1
+        } else {
+            tail.1 + (head.1 - tail.1) / (head.1 - tail.1).abs()
+        },
+    )
+}
+
+fn simulate(instructions: &Vec<(Direction, usize)>, n: usize) -> usize {
+    let mut segments = vec![(0i64, 0i64) as Pair; n];
     let mut tpositions: HashSet<Pair> = HashSet::new();
 
-    let mut line = String::new();
-    while stdin().read_line(&mut line)? != 0 {
-        let mut l = line.split_ascii_whitespace();
-        let (direction, steps) = (
-            Direction::new(l.next().unwrap()).unwrap(),
-            l.next().unwrap().parse::<usize>().unwrap(),
-        );
+    for instruction in instructions {
+        let direction = instruction.0;
+        let steps = instruction.1;
 
         for _ in 0..steps {
-            head = mv(head, direction);
-            if far(head, tail) {
-                // Always move in the same direction.
-                tail = mv(tail, direction);
+            segments[0] = mv(segments[0], direction);
 
-                // If we aren't in the same row and same column, we have to move
-                // diagonally.
-                if head.0 != tail.0 && head.1 != tail.1 {
-                    // The move earlier completed the first part of diagnonal movement,
-                    // now move perpendicular to that.
-                    match direction {
-                        Direction::Left | Direction::Right => tail = (tail.0, head.1),
-                        Direction::Up | Direction::Down => tail = (head.0, tail.1),
-                    }
+            // Iterate pairs of segments.
+            for s in 0..segments.len() - 1 {
+                let (left, right) = segments.split_at_mut(s + 1);
+                let head = &mut left[s];
+                let tail = &mut right[0];
+
+                if far(*head, *tail) {
+                    *tail = mv_towards(head, tail);
                 }
             }
-            tpositions.insert(tail);
+            tpositions.insert(*segments.last().unwrap());
         }
-
-        line.clear();
     }
+    tpositions.len()
+}
 
-    println!("part 1: {}", tpositions.len());
+fn main() -> Result<(), Box<dyn Error>> {
+    let lines = stdin()
+        .lines()
+        .map(|line| {
+            let u = line.unwrap();
+            let mut l = u.split_ascii_whitespace();
+            (
+                Direction::new(l.next().unwrap()).unwrap(),
+                l.next().unwrap().parse::<usize>().unwrap(),
+            )
+        })
+        .collect::<Vec<_>>();
+
+    println!("part 1: {}", simulate(&lines, 2));
+    println!("part 2: {}", simulate(&lines, 10));
     Ok(())
 }
