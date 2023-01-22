@@ -1,11 +1,11 @@
 use std::{any::Any, error::Error};
 
-type FnResult = Result<Box<dyn Any>, Box<dyn Error>>;
+type FnResult = Result<(), Box<dyn Error>>;
 type TaskResult<'a> = Result<Task<'a>, Box<dyn Error>>;
 
 struct Task<'a> {
     name: &'a str,
-    result: Box<dyn Any>,
+    completed: bool,
 }
 
 impl<'a> Task<'a> {
@@ -13,8 +13,11 @@ impl<'a> Task<'a> {
     where
         F: FnOnce() -> FnResult,
     {
-        let result = f()?;
-        Ok(Task::<'a> { name, result })
+        f()?;
+        Ok(Task::<'a> {
+            name,
+            completed: true,
+        })
     }
 }
 
@@ -22,8 +25,11 @@ fn run<F>(name: &str, f: F) -> TaskResult
 where
     F: FnOnce() -> FnResult,
 {
-    let result = f()?;
-    Ok(Task { name, result })
+    f()?;
+    Ok(Task {
+        name,
+        completed: true,
+    })
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -34,16 +40,16 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     run("foo", || {
         println!("foo");
-        Ok(Box::new(()))
+        Ok(())
     })?;
 
     run("foo", || {
         println!("foo");
-        Ok(Box::new(()))
+        Ok(())
     })?
     .then("bar", || {
         println!("bar");
-        Ok(Box::new(()))
+        Ok(())
     })?;
 
     Ok(())
