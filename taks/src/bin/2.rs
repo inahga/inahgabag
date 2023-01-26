@@ -1,71 +1,48 @@
 use std::error::Error;
 
-struct Task<'a, C>
-where
-    C: Copy,
-{
+type Err = Box<dyn Error>;
+
+struct Task<'a, C: Copy, T: Copy> {
     name: &'a str,
     ctx: C,
-}
-
-impl<'a, C: Copy> Task<'a, C> {
-    fn new(name: &'a str, ctx: C) -> Self
-    where
-        C: Copy,
-    {
-        Self { name, ctx }
-    }
-
-    fn run<F, T>(&self, name: &'a str, f: F) -> Result<TaskResult<C, T>, Box<dyn Error>>
-    where
-        F: FnOnce(C) -> Result<T, Box<dyn Error>>,
-        T: Copy,
-    {
-        let result = f(self.ctx)?;
-        Ok(TaskResult {
-            ctx: self.ctx,
-            result,
-            name,
-        })
-    }
-}
-
-struct TaskResult<'a, C, T>
-where
-    C: Copy,
-    T: Copy,
-{
-    ctx: C,
-    name: &'a str,
     result: T,
 }
 
-impl<'a, C: Copy, T: Copy> TaskResult<'a, C, T> {
-    fn then<F, U>(&self, name: &'a str, f: F) -> Result<TaskResult<C, U>, Box<dyn Error>>
+impl<'a, C: Copy, T: Copy> Task<'a, C, T> {
+    fn new<F>(name: &'a str, ctx: C, f: F) -> Result<Self, Err>
     where
-        F: FnOnce(C, T) -> Result<U, Box<dyn Error>>,
-        C: Copy,
-        T: Copy,
+        F: FnOnce(C) -> Result<T, Err>,
+    {
+        Ok(Self {
+            name,
+            ctx,
+            result: f(ctx)?,
+        })
+    }
+
+    fn then<F, U>(&self, name: &'a str, f: F) -> Result<Task<C, U>, Err>
+    where
+        F: FnOnce(C, T) -> Result<U, Err>,
         U: Copy,
     {
-        let result = f(self.ctx, self.result)?;
-        Ok(TaskResult {
-            ctx: self.ctx,
-            result,
+        Ok(Task {
             name,
+            ctx: self.ctx,
+            result: f(self.ctx, self.result)?,
         })
     }
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let result = Task::new("foo", ())
-        .run("bar", |_| {
-            println!("bar");
-            Ok(1)
-        })?
-        .then("baz", |_, i| Ok(i + 1))?
-        .then("foo", |_, i| Ok(i + 1))?
-        .result;
+    let s = String::from("foobar");
+    let result = Task::new("foo", (), |_| {
+        println!("bar");
+        Ok(1)
+    })?
+    .then("baz", |_, i| Ok(i + 1))?
+    .then("foo", |_, i| Ok(i + 1))?
+    .then(&s, |_, i| Ok(i + 1))?
+    .result;
     println!("{:?}", result);
     Ok(())
 }
