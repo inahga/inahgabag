@@ -1,4 +1,5 @@
 use std::borrow::BorrowMut;
+use std::cmp::Ordering;
 use std::error::Error;
 use std::io::stdin;
 
@@ -42,66 +43,71 @@ impl Node {
     }
 }
 
-enum Valid {
-    False,
-    True,
-    Inconclusive,
-}
-
-fn compare(left: &Node, right: &Node) -> Valid {
-    if let (Node::Num(l), Node::Num(r)) = (left, right) {
-        if l < r {
-            return Valid::True;
-        } else if l > r {
-            return Valid::False;
-        } else {
-            return Valid::Inconclusive;
-        }
-    } else if let (Node::Node(l), Node::Node(r)) = (left, right) {
-        for (i, lnode) in l.iter().enumerate() {
-            if i >= r.len() {
-                return Valid::False;
+fn compare(left: &Node, right: &Node) -> Ordering {
+    match (left, right) {
+        (Node::Num(l), Node::Num(r)) => return l.cmp(r),
+        (Node::Node(l), Node::Node(r)) => {
+            for (i, lnode) in l.iter().enumerate() {
+                if i >= r.len() {
+                    return Ordering::Greater;
+                }
+                match compare(lnode, &r[i]) {
+                    Ordering::Equal => continue,
+                    res => return res,
+                }
             }
-            match compare(lnode, &r[i]) {
-                Valid::Inconclusive => continue,
-                res => return res,
+            if l.len() < r.len() {
+                return Ordering::Less;
             }
+            return Ordering::Equal;
         }
-        if l.len() < r.len() {
-            return Valid::True;
-        } else {
-            return Valid::Inconclusive;
+        (Node::Num(l), Node::Node(_)) => {
+            return compare(&Node::Node(vec![Box::new(Node::Num(*l))]), right)
         }
-    } else if let (Node::Num(l), Node::Node(_)) = (left, right) {
-        return compare(&Node::Node(vec![Box::new(Node::Num(*l))]), right);
-    } else if let (Node::Node(_), Node::Num(r)) = (left, right) {
-        return compare(left, &Node::Node(vec![Box::new(Node::Num(*r))]));
+        (Node::Node(_), Node::Num(r)) => {
+            return compare(left, &Node::Node(vec![Box::new(Node::Num(*r))]))
+        }
     }
-    unreachable!()
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let part1 = stdin()
+    let mut lines: Vec<String> = stdin()
         .lines()
         .filter_map(|line| {
-            let line = line.unwrap();
-            if line.is_empty() {
+            let l = line.unwrap();
+            if l.is_empty() {
                 None
             } else {
-                Some(Node::from(&line))
+                Some(l)
             }
         })
-        .collect::<Vec<_>>()
-        .chunks(2)
-        .enumerate()
-        .fold(0, |last, pair| {
-            if let Valid::True = compare(&pair.1[0], &pair.1[1]) {
-                last + pair.0 + 1
-            } else {
-                last
-            }
-        });
+        .collect();
+
+    let part1 = lines.chunks(2).enumerate().fold(0, |last, pair| {
+        match compare(&Node::from(&pair.1[0]), &Node::from(&pair.1[1])) {
+            Ordering::Less => last + pair.0 + 1,
+            _ => last,
+        }
+    });
     println!("part 1: {}", part1);
+
+    lines.push(String::from("[[2]]"));
+    lines.push(String::from("[[6]]"));
+    lines.sort_by(|a, b| compare(&Node::from(a), &Node::from(b)));
+    let part2 = [2, 6].iter().fold(1, |last, target| {
+        last * (lines
+            .binary_search_by(|line| {
+                compare(
+                    &Node::from(line),
+                    &Node::Node(vec![Box::new(Node::Node(vec![Box::new(Node::Num(
+                        *target,
+                    ))]))]),
+                )
+            })
+            .unwrap()
+            + 1)
+    });
+    println!("part 2: {}", part2);
 
     Ok(())
 }
