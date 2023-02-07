@@ -42,8 +42,46 @@ impl Node {
     }
 }
 
+enum Valid {
+    False,
+    True,
+    Inconclusive,
+}
+
+fn compare(left: &Node, right: &Node) -> Valid {
+    if let (Node::Num(l), Node::Num(r)) = (left, right) {
+        if l < r {
+            return Valid::True;
+        } else if l > r {
+            return Valid::False;
+        } else {
+            return Valid::Inconclusive;
+        }
+    } else if let (Node::Node(l), Node::Node(r)) = (left, right) {
+        for (i, lnode) in l.iter().enumerate() {
+            if i >= r.len() {
+                return Valid::False;
+            }
+            match compare(lnode, &r[i]) {
+                Valid::Inconclusive => continue,
+                res => return res,
+            }
+        }
+        if l.len() < r.len() {
+            return Valid::True;
+        } else {
+            return Valid::Inconclusive;
+        }
+    } else if let (Node::Num(l), Node::Node(_)) = (left, right) {
+        return compare(&Node::Node(vec![Box::new(Node::Num(*l))]), right);
+    } else if let (Node::Node(_), Node::Num(r)) = (left, right) {
+        return compare(left, &Node::Node(vec![Box::new(Node::Num(*r))]));
+    }
+    unreachable!()
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
-    let lines = stdin()
+    let part1 = stdin()
         .lines()
         .filter_map(|line| {
             let line = line.unwrap();
@@ -53,15 +91,17 @@ fn main() -> Result<(), Box<dyn Error>> {
                 Some(Node::from(&line))
             }
         })
-        .inspect(|node| println!("{:?}", node))
         .collect::<Vec<_>>()
         .chunks(2)
+        .enumerate()
         .fold(0, |last, pair| {
-            let left = &pair[0];
-            let right = &pair[1];
-
-            last
+            if let Valid::True = compare(&pair.1[0], &pair.1[1]) {
+                last + pair.0 + 1
+            } else {
+                last
+            }
         });
+    println!("part 1: {}", part1);
 
     Ok(())
 }
