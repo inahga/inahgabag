@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+
+
 if [ -z "${1+x}" ] || [ -z "${2+x}" ]; then
 	echo "usage: $0 [TARGET PACKAGE] [APPEND TO SUMMARY] [PATCH FILES]..."
 	exit 1
