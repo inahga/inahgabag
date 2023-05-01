@@ -1,4 +1,5 @@
 .ccls-cache
 a.out
 target
-
+result
+*.qcow2
