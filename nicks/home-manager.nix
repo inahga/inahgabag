@@ -18,18 +18,29 @@ in {
         "inahga@gmail.com";
     };
 
+    programs.bash = {
+      enable = true;
+      bashrcExtra = ""; # TODO
+    };
+
+    home.sessionVariables = {
+      MOZ_ENABLE_WAYLAND = 1;
+      XDG_CURRENT_DESKTOP = "river";
+      XKB_DEFAULT_OPTIONS = "caps:escape";
+    };
+
     xdg.configFile."river/init" = {
       source = ./river-init.sh;
       executable = true;
     };
 
     home.file.".tmux.conf".source = ./tmux.conf;
-    home.file.".bashrc" = {
-      source = ./bashrc.sh;
-      executable = true;
-    };
 
     # kakrc
     # kak-lsp
+    # vimrc
+    # gitignore
+    # dconf??
+    # better fuzzel theme
   };
 }

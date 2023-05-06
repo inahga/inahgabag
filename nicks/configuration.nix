@@ -5,6 +5,20 @@
     ./home-manager.nix
   ];
 
+  # luks (w/ yubikey?)
+  # sound
+  # screen sharing
+  # bluetooth
+  # nmtui/wifi connection
+  # notifications
+  # updates
+  # yubikey sudo/login
+  # acpi command/battery
+  # screen resolution management/display scaling
+  # screenshots
+  # screen locker
+  # webcam
+
   boot = {
     loader.systemd-boot.enable = true;
     initrd.systemd.enable = true;
@@ -28,8 +42,7 @@
     enable = true;
     settings = {
       default_session = {
-        command =
-          "${pkgs.river}/bin/river -log-level debug >/home/inahga/river.log 2>&1";
+        command = "${pkgs.river}/bin/river";
         user = "inahga";
       };
     };
@@ -53,28 +66,68 @@
     }];
   };
 
+  nixpkgs.config.allowUnfree = true;
   environment.defaultPackages = with pkgs; [
+    brightnessctl
     fuzzel
     mako
+    pamixer
+    playerctl
     river
     swaybg
     swayidle
     xdg-desktop-portal
 
     chromium
-    firefox
+    firefox-wayland
 
     libreoffice
 
     alacritty
     xterm
     tmux
+
     git
     rsync
+    curl
     pstree
 
     vim
     kakoune
     kak-lsp
+
+    # discord
+    # shellcheck
+    # slack
+    # spotify
+    # mutt
+    # krita
+    # signal
+    # steam
+    # obs
+    # calculator
+    # gcc
+    # go?
+    # rust?
+    # build-essentials
+    # ripgrep
+    # fd-find
+    # fzf
+    # wl-copy
+    # grim
+    # slurp
   ];
+
+  # Set up firefox for wayland usage
+  programs.firefox = {
+    enable = true;
+    package = pkgs.wrapFirefox pkgs.firefox-unwrapped {
+      extraPolicies = { ExtensionSettings = { }; };
+    };
+  };
+
+  xdg.portal = {
+    enable = true;
+    extraPortals = with pkgs; [ xdg-desktop-portal-wlr xdg-desktop-portal-gtk ];
+  };
 }
