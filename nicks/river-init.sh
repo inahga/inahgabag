@@ -4,7 +4,7 @@
 export XDG_CURRENT_DESKTOP=river
 
 set_background() {
-	riverctl background-color 0x000000
+	riverctl background-color 0x2d2d2d
 	riverctl border-color-focused 0x93a1a1
 	riverctl border-color-unfocused 0x586e75
 	swaybg -m fill -i "$(fd jpg "$HOME/Pictures/wallpapers" | shuf | head -n1)" &
@@ -116,4 +116,4 @@ spawn_daemons
 # Set and exec into the default layout generator, rivertile.
 # River will send the process group of the init executable SIGTERM on exit.
 riverctl default-layout rivertile
-exec rivertile -view-padding 2 -outer-padding 2
+exec rivertile -view-padding 3 -outer-padding 3

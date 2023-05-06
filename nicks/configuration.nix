@@ -18,6 +18,9 @@
   # screenshots
   # screen locker
   # webcam
+  # mozilla ublock origin
+  # virtualization
+  # rust dev
 
   boot = {
     loader.systemd-boot.enable = true;
@@ -27,10 +30,11 @@
   };
 
   networking.networkmanager.enable = true;
+  hardware.bluetooth.enable = true;
 
   users.users.inahga = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" ];
+    extraGroups = [ "wheel" "networkmanager" "libvirtd" ];
     initialPassword = "password";
     openssh.authorizedKeys.keys = [
       "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIJBN1uV3RK41ghFQLYqNTVXUVALbn3KDr3E8HCxk7zC8AAAAEXNzaDp5dWJpa2V5LXNtYWxs"
@@ -49,6 +53,8 @@
   };
 
   services.dbus.enable = true;
+  services.flatpak.enable = true;
+  services.blueman.enable = true;
 
   services.pipewire = {
     enable = true;
@@ -68,54 +74,58 @@
 
   nixpkgs.config.allowUnfree = true;
   environment.defaultPackages = with pkgs; [
+    acpi
+    alacritty
+    ansible
     brightnessctl
+    chromium
+    curl
+    discord
+    entr
+    fd
+    firefox-wayland
     fuzzel
+    fwts
+    fzf
+    gcc
+    git
+    git-crypt
+    grim
+    kak-lsp
+    kakoune
+    kanshi
+    kind
+    krita
+    libimobiledevice
+    libnotify
+    libreoffice
     mako
+    moreutils
+    mutt
+    obs-studio
     pamixer
+    pass
     playerctl
+    pstree
+    ripgrep
     river
+    rsync
+    shellcheck
+    slack
+    slurp
+    socat
+    spotify
     swaybg
     swayidle
-    xdg-desktop-portal
-
-    chromium
-    firefox-wayland
-
-    libreoffice
-
-    alacritty
-    xterm
     tmux
-
-    git
-    rsync
-    curl
-    pstree
-
+    usbutils
+    valgrind
     vim
-    kakoune
-    kak-lsp
-
-    # discord
-    # shellcheck
-    # slack
-    # spotify
-    # mutt
-    # krita
-    # signal
-    # steam
-    # obs
-    # calculator
-    # gcc
-    # go?
-    # rust?
-    # build-essentials
-    # ripgrep
-    # fd-find
-    # fzf
-    # wl-copy
-    # grim
-    # slurp
+    virt-manager
+    webcamoid
+    wl-clipboard
+    xdg-desktop-portal
+    xterm
   ];
 
   # Set up firefox for wayland usage
@@ -130,4 +140,13 @@
     enable = true;
     extraPortals = with pkgs; [ xdg-desktop-portal-wlr xdg-desktop-portal-gtk ];
   };
+
+  virtualisation.podman = {
+    enable = true;
+    dockerCompat = true;
+    defaultNetwork.settings.dns_enabled = true;
+  };
+
+  virtualisation.libvirtd.enable = true;
+  programs.dconf.enable = true;
 }
