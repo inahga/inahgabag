@@ -5,12 +5,12 @@ on:
 
 jobs:
   test:
-    strategy:
-      matrix:
-        foo:
-          - bar
-          - baz
     runs-on: ubuntu-latest
     steps:
-    - name: "Test"
-      run: echo ${{ matrix.foo }}
+    - run: echo ${{ github.ref }}
+    - name: Check if running on a valid branch
+      if: github.ref != 'refs/heads/main' && !startsWith(github.ref, "refs/heads/release/")
+      run: |
+        echo "You shall not pass"
+        exit 1
+
