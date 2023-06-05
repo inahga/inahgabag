@@ -2,14 +2,20 @@ name: test
 
 on:
   pull_request:
-  
   workflow_dispatch:
+    inputs:
+      test:
+        description: "revert last migration"
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
     - run: echo ${{ github.ref }}
+    - run: echo ${{ toJSON(inputs.test) }}
     - name: Show GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
