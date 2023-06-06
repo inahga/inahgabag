@@ -3,12 +3,6 @@ name: test
 on:
   pull_request:
   workflow_dispatch:
-    inputs:
-      test:
-        description: "revert last migration"
-        default: false
-        required: false
-        type: boolean
 
 jobs:
   test:
