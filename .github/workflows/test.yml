@@ -13,9 +13,4 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - name: run if true
-      if: github.inputs.test
-      run: echo true
-    - name: run if false
-      if: '!github.inputs.test'
-      run: echo false
+      run: echo ${{ toJSON(inputs.TEST) }}
