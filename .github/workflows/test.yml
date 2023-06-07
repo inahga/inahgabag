@@ -13,4 +13,4 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      run: echo ${{ toJSON(inputs.TEST) }}
+      - run: echo ${{ toJSON(inputs.TEST) }}
