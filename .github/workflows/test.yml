@@ -3,59 +3,19 @@ name: test
 on:
   pull_request:
   workflow_dispatch:
+  push:
 
 jobs:
   job1:
     runs-on: ubuntu-latest
     steps:
-      - id: get_parameters
-        run: |
-          RUN_JOB_2=true
-          RUN_JOB_3=
-          echo "run_job_2=$RUN_JOB_2" >>$GITHUB_OUTPUT
-          echo "run_job_3=$RUN_JOB_3" >>$GITHUB_OUTPUT
-    outputs:
-      run_job_2: ${{ steps.get_parameters.outputs.run_job_2 }}
-      run_job_3: ${{ steps.get_parameters.outputs.run_job_3 }}
+    - uses: actions/github-script@v6
+      with:
+        file: foo
+        test: bar
+        script: |
+          const file = core.getInput('file', { required: true });
+          const test = core.getInput('test', { required: true });
 
-  job2:
-    runs-on: ubuntu-latest
-    needs: job1
-    if: ${{ needs.job1.outputs.run_job_2 == 'true' }}
-    steps:
-      - run: echo job2 was run
-      - id: execute
-        run: |
-          RESULTS=$(echo "results of job2" | base64)
-          echo "results=$RESULTS" >>$GITHUB_OUTPUT
-    outputs:
-      results: "${{ steps.execute.outputs.results }}"
-
-  job3:
-    runs-on: ubuntu-latest
-    needs: job1
-    if: ${{ needs.job1.outputs.run_job_3 == 'true' }}
-    steps:
-      - run: echo job3 was run
-      - id: execute
-        run: |
-          RESULTS=$(echo "results of job3" | base64)
-          printf "results=%s\n" "$RESULTS" >>$GITHUB_OUTPUT
-    outputs:
-      results: "${{ steps.execute.outputs.results }}"
-
-  job4:
-    runs-on: ubuntu-latest
-    if: always()
-    needs:
-      - job2
-      - job3
-    steps:
-      - env:
-          JOB2_RESULTS: ${{ needs.job2.outputs.results }}
-          JOB3_RESULTS: ${{ needs.job3.outputs.results }}
-        run: |
-          echo "Job 2:"
-          printf "%s\n" "$JOB2_RESULTS" | base64 -d
-          echo "Job 3:"
-          printf "%s\n" "$JOB3_RESULTS" | base64 -d
+          console.log(file)
+          console.log(test)
