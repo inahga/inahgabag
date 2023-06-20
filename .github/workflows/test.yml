@@ -18,7 +18,7 @@ jobs:
   job2:
     runs-on: ubuntu-latest
     needs: job1
-    if: needs.job1.outputs.run_job_2 == "true"
+    if: ${{ needs.job1.outputs.run_job_2 == 'true' }}
     steps:
       - run: echo job2 was run
       - run: |
@@ -28,7 +28,7 @@ jobs:
   job3:
     runs-on: ubuntu-latest
     needs: job1
-    if: needs.job1.outputs.run_job_3 == "true"
+    if: ${{ needs.job1.outputs.run_job_3 == 'true' }}
     steps:
       - run: echo job3 was run
       - run: |
