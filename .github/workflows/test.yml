@@ -8,8 +8,7 @@ on:
 jobs:
   job1:
     runs-on: ubuntu-latest
-    outputs:
-      outputs: ${{ steps.step1.outputs }}
+    outputs: ${{ steps.step1.outputs }}
     steps:
       - id: step1
         run: echo "test=hello" >> "$GITHUB_OUTPUT"
