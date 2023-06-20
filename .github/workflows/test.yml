@@ -8,7 +8,7 @@ on:
 jobs:
   job1:
     runs-on: ubuntu-latest
-    outputs: ${{ steps.test.outputs }}
+    outputs: ${{ steps.test.outputs.foo }}
     steps:
     - id: test
       uses: actions/github-script@v6
