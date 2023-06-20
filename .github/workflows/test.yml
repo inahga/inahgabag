@@ -8,8 +8,10 @@ on:
 jobs:
   job1:
     runs-on: ubuntu-latest
+    outputs: ${{ steps.test.outputs }}
     steps:
-    - uses: actions/github-script@v6
+    - id: test
+      uses: actions/github-script@v6
       with:
         file: foo
         test: bar
