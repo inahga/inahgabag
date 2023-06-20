@@ -8,16 +8,10 @@ on:
 jobs:
   job1:
     runs-on: ubuntu-latest
-    outputs: ${{ steps.test.outputs.foo }}
+    outputs:
+      outputs: ${{ steps.step1.outputs }}
     steps:
-    - id: test
-      uses: actions/github-script@v6
-      with:
-        file: foo
-        test: bar
-        script: |
-          const file = core.getInput('file', { required: true });
-          const test = core.getInput('test', { required: true });
-
-          console.log(file)
-          console.log(test)
+      - id: step1
+        run: echo "test=hello" >> "$GITHUB_OUTPUT"
+      - id: step2
+        run: echo "test=world" >> "$GITHUB_OUTPUT"
