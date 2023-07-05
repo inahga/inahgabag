@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       test:
-        type: numberasdf
+        type: asdf
         default: "0"
 
 jobs:
