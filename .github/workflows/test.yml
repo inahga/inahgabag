@@ -11,4 +11,4 @@ jobs:
   job1:
     runs-on: ubuntu-latest
     steps:
-      - run: printf "%s\n" "${{ toJSON(github) }}" | jq .
+      - run: printf "%s\n" "${{ toJSON(github) }}"
