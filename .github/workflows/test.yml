@@ -6,6 +6,8 @@ on:
       test:
         type: asdf
         default: "0"
+  release:
+    types: [published]
 
 jobs:
   job1:
