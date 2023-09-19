@@ -6,8 +6,7 @@ on:
       test:
         type: asdf
         default: "0"
-  release:
-    types: [published]
+  pull_request:
 
 jobs:
   job1:
