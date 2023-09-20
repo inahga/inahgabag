@@ -13,3 +13,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: gh auth status
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
