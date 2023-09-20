@@ -11,4 +11,4 @@ jobs:
     steps:
       - run: gh auth status && gh pr -R inahga/inahgabag review --approve 4
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.ASDF }}
