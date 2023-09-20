@@ -2,16 +2,13 @@ name: test
 
 on:
   workflow_dispatch:
-    inputs:
-      test:
-        type: asdf
-        default: "0"
   pull_request:
+  push:
 
 jobs:
   job1:
     runs-on: ubuntu-latest
     steps:
-      - run: gh auth status && gh pr approve 4
+      - run: gh auth status && gh pr review --approve 4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
