@@ -1,0 +1,9 @@
+[package]
+name = "whyq"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.98"
+nanoserde = { version = "0.2.1", default-features = false, features = ["json"] }
+ureq = "3.0.12"
